@@ -39,10 +39,6 @@ public class Cart {
         return BooksInCart.size();
     }
 
-//    public static int BooksNumberInCart(){
-//        return Cart.BooksInCart.size();
-//    }
-
     public static double totalPrice() {
         double TotalPrice = 0;
 

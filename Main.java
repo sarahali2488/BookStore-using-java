@@ -26,104 +26,101 @@ public class Main {
             Inventory.addBook(b);
         }
 
+        Inventory.ShowInventoryList();
+
+        // Scanner and variable declarations
         Scanner scanner = new Scanner(System.in);
-        boolean CheckoutSuccess = false;
+        boolean DoneOptions = false;
 
-        //View Options to user
-        System.out.println("""
-                Hello!
-                Choose one of these options:\
-
-                1- Find Book by NAme/ISBN.\
-
-                2- Add Book to Cart.\
-
+        while (!DoneOptions) {
+            // Display options to the user
+            System.out.println("""
+               \nChoose one of these options:
+                1- Find Book by Name/ISBN.
+                2- Add Book to Cart.
                 3- Checkout!""");
-        scanner.nextLine();
-        int UserOption = scanner.nextInt();
 
-        switch (UserOption) {
-            case 1:
-                UserOptionOne(book);
-                break;
-            case 2:
-                UserOptionTwo(book);
-                break;
-            case 3:
-                CheckoutSuccess = true;
-                System.out.println("Are you sure to Checkout? (y/n)");
-                String UserCheckout = scanner.nextLine();
+            int UserOption = scanner.nextInt();
+            scanner.nextLine();  // Clear newline left by nextInt()
 
-                if (UserCheckout.equals("y")) {
-                    //Check number of books , total price. Then clean cart.
-                    if (Cart.getSize() > 0) {
-                        if (Cart.totalPrice() > 0) {
-                            Cart.displayCart();
-                            Cart.clearCart();
-                            System.out.println("Your Cart has been checked out!");
-                        }
-                    } else if(Cart.getSize() == 0) {
-                        System.out.println("Your Cart is empty!");
-                    }
-                } else{
-                    CheckoutSuccess = false;
-                }
-                break;
-
-            default:
-                System.out.println("Invalid option!");
+            switch (UserOption) {
+                case 1:
+                    UserOptionOne(book, scanner);
+                    break;
+                case 2:
+                    UserOptionTwo(book, scanner);
+                    break;
+                case 3:
+                    UserOptionThree(book, scanner, DoneOptions);
+                    break;
+                default:
+                    System.out.println("Invalid option! Choose Again..");
+            }
         }
+        scanner.close();
     }
-    //scanner.close();
 
-    //Methods op1
-    public static void UserOptionOne(Book[] book) {
+    // Method for finding a book by Name or ISBN
+    public static void UserOptionOne(Book[] book, Scanner scanner) {
         System.out.println("Find a Book by [ Name | ISBN ]? ");
-        Scanner scanner = new Scanner(System.in);
         String UserAnswer = scanner.nextLine();
 
-        if (UserAnswer.equals("Name")) {
+        if (UserAnswer.equalsIgnoreCase("Name")) {
             System.out.println("Enter the name of the book: ");
-            String UserAnswer2 = scanner.nextLine();
-            Inventory.SearchBookByName(UserAnswer2);
+            String BookName = scanner.nextLine();
+            Inventory.SearchBookByName(BookName);
         }
-        else if (UserAnswer.equals("ISBN")) {
+        else if (UserAnswer.equalsIgnoreCase("ISBN")) {
             System.out.println("Enter the ISBN of the book: ");
             String BookISBN = scanner.nextLine();
             Inventory.SearchBookByISBN(BookISBN);
         }
-        else{
+        else {
             System.out.println("Invalid input! Choose 'Name' or 'ISBN'.");
         }
     }
 
-    //Method op2: Recusive/Repeated untill saying done
-    public static void UserOptionTwo(Book[] book) {
+    // Method for adding a book to the cart, with a loop to allow adding multiple books
+    public static void UserOptionTwo(Book[] book, Scanner scanner) {
         boolean AddMore = true;
         while (AddMore) {
-            System.out.println("Let's Add This Book to the cart: " + "\nEnter the ISBN of the Book...");
-            Scanner scanner = null;
+            System.out.println("Enter the ISBN of the Book to add it to the cart...");
             String BookISBN = scanner.nextLine();
 
             for (Book b : book) {
                 if (b.getISBN().equals(BookISBN) && b.getQuantity() > 0) {
-                    Cart.addBookToCart(b); //book quantity should decrease and check q > 0.
-                    System.out.println("Book Added to cart.");
+                    Cart.addBookToCart(b);  // Book quantity should decrease and check q > 0.
+                    System.out.println("Book added to cart.");
+                    break;
                 }
-                else{
-                    System.out.println("Book Not found");
-                }
+            }
+
+            System.out.println("Do you want to add more books? (y/n)");
+            String AnswerAddMore = scanner.nextLine();
+            if (AnswerAddMore.equals("n")) {
+                AddMore = false;
             }
         }
         Cart.displayCart();
-        //Inventory.ShowInventoryList();
+    }
 
-        //Option to add more books or just stop
-        System.out.println("Do ou want to add more books? (y/n)");
-        Scanner Ans_scanner = null;
-        String AnswerAddMore= Ans_scanner.nextLine();
-        if (AnswerAddMore.equals("n")) {
-            AddMore = false;
+    public static void UserOptionThree(Book[] book, Scanner scanner, boolean DoneOp) {
+        System.out.println("Are you sure you want to Checkout? (y/n)");
+        String UserCheckout = scanner.nextLine();
+
+        if (UserCheckout.equals("y")) {
+            if (Cart.getSize() > 0) {
+                if (Cart.totalPrice() > 0) {
+                    Cart.displayCart();
+                    System.out.println("Your Cart has been checked out!");
+                    Cart.clearCart();
+                } else {
+                    System.out.println("Your Cart is empty!");
+                }
+            } else {
+                System.out.println("Your Cart is empty!");
+            }
+            DoneOp = true;
         }
     }
 }

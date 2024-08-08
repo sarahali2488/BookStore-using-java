@@ -35,9 +35,6 @@ public class Inventory {
                         + " - Quantity: " + book.getQuantity()
                         + " - ISBN: " + book.getISBN() + ".");
             }
-//            else{
-//                System.out.println("Book NOT FOUND.");
-//            }
         }
     }
 
@@ -50,9 +47,6 @@ public class Inventory {
                         + " - Quantity: " + book.getQuantity()
                         + " - ISBN: " + book.getISBN() + ".");
             }
-//            else{
-//                System.out.println("Book NOT FOUND.");
-//            }
         }
     }
 
