@@ -1,32 +1,24 @@
 import java.util.ArrayList;
+import java.util.List;
 
 public class Cart {
     private static ArrayList<Book> BooksInCart = new ArrayList<>();
+    private static Cart instance;
+
+    public static Cart getInstance() {
+        if (instance == null) {
+            instance = new Cart();
+        }
+        return instance;
+    }
 
     public Cart() {
         BooksInCart = new ArrayList<>();
+
     }
 
-    public static void addBookToCart(Book book) {
+    public void addBookToCart(Book book) {
         BooksInCart.add(book);
-
-        //Note: remove from inventory and subtract quantity
-        if (book.getQuantity() == 0) {
-            Inventory.removeBook(book);
-        } else if (book.getQuantity() > 0) {
-            Inventory.ReduceBookQuantity(book.getISBN());
-        }
-
-        System.out.print("Cart Contains: ");
-        for (Book b : BooksInCart) {
-            System.out.print(b.getName() + ", ");
-        }
-    }
-
-    //Note add quantity again
-    public void removeBook(Book book) {
-        //Note: add quantity again
-        BooksInCart.remove(book);
     }
 
     public static void displayCart() {
@@ -39,6 +31,17 @@ public class Cart {
         return BooksInCart.size();
     }
 
+    public static Book getBook(){
+        for (Book book : BooksInCart) {
+            return book;
+        }
+        return null;
+    }
+
+    public static List<Book> getBooksList(){
+        return BooksInCart;
+    }
+
     public static double totalPrice() {
         double TotalPrice = 0;
 
@@ -48,10 +51,13 @@ public class Cart {
         return TotalPrice;
     }
 
-    public static void clearCart() {
-        for (Book book : BooksInCart) {
-            BooksInCart.remove(book);
-        }
+    public static void clearCart(){
+        BooksInCart.clear();
+    }
+
+    @Override
+    public String toString() {
+        return BooksInCart.toString();
     }
 }
 

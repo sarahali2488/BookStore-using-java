@@ -5,28 +5,22 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        //-> Initially: append books in inventory
-        //-> List of options to user:
-        // op1 find a book by (name/isbn) from inventory -> reply with details
-        // op2 add to my cart, input isbn (iteration) -> search about isbn,quantity, add to cart --> op2 recursive with op1 to repeat these two
-        // op3 proceed to checkout : Are you sure to check out? take input -> check no. books in cart >0, checkout succeeded, (print: no. books , total price , clean cart)
-        //-> Test all options , Edit on Adding book quantity , other methods
 
-        Book[] book = {
-                new Book("Java Programming", "John Doe", 29.99, 3, "123-456-789"),
-                new Book("Python for Beginners", "Jane Smith", 19.99, 3, "987-654-321"),
-                new Book("C++ Programming", "Alice Johnson", 34.99, 2, "111-222-333"),
-                new Book("Data Structures in Java", "Bob Wilson", 27.99, 2, "444-555-666"),
-                new Book("JavaScript Fundamentals", "Mary Brown", 24.99, 2, "777-888-999")
+        Book[] books = {
+                new Book("Java Programming", "John Doe", 29.99, "123-456-789"),
+                new Book("Python for Beginners", "Jane Smith", 19.99, "987-654-321"),
+                new Book("C++ Programming", "Alice Johnson", 34.99, "111-222-333"),
+                new Book("Data Structures in Java", "Bob Wilson", 27.99,  "444-555-666"),
+                new Book("JavaScript Fundamentals", "Mary Brown", 24.99, "777-888-999")
         };
 
-        //Add previous books to inventory
-        Inventory inventory = new Inventory();
-        for (Book b : book) {
-            Inventory.addBook(b);
-        }
+        int[] quantities = {3,3,2,2,2};
+        
 
-        Inventory.ShowInventoryList();
+        //Add previous books to list of inventories
+        Inventory[] inventories = new Inventory[books.length];
+        Inventory.StoreBooksInInventory(books, quantities, inventories);
+        Inventory.DisplayInventory(inventories);
 
         // Scanner and variable declarations
         Scanner scanner = new Scanner(System.in);
@@ -45,13 +39,14 @@ public class Main {
 
             switch (UserOption) {
                 case 1:
-                    UserOptionOne(book, scanner);
+                    UserOptionOne(scanner, inventories);
                     break;
                 case 2:
-                    UserOptionTwo(book, scanner);
+                    UserOptionTwo(scanner,inventories);
                     break;
                 case 3:
-                    UserOptionThree(book, scanner, DoneOptions);
+                    UserOptionThree(scanner, inventories);
+                    DoneOptions = true;
                     break;
                 default:
                     System.out.println("Invalid option! Choose Again..");
@@ -61,19 +56,33 @@ public class Main {
     }
 
     // Method for finding a book by Name or ISBN
-    public static void UserOptionOne(Book[] book, Scanner scanner) {
+    public static void UserOptionOne(Scanner scanner, Inventory[] inventories) {
         System.out.println("Find a Book by [ Name | ISBN ]? ");
         String UserAnswer = scanner.nextLine();
 
         if (UserAnswer.equalsIgnoreCase("Name")) {
             System.out.println("Enter the name of the book: ");
             String BookName = scanner.nextLine();
-            Inventory.SearchBookByName(BookName);
+
+            Inventory inventory = Inventory.SearchBookByName(BookName, inventories);
+            if(inventory==null){
+                System.out.println("Book not found");
+                return;
+            }
+            System.out.println(inventory.getBook());
+            System.out.println("Book Quantity= "+ inventory.getQuantity());
         }
         else if (UserAnswer.equalsIgnoreCase("ISBN")) {
             System.out.println("Enter the ISBN of the book: ");
             String BookISBN = scanner.nextLine();
-            Inventory.SearchBookByISBN(BookISBN);
+
+            Inventory inventory = Inventory.SearchBookByISBN(BookISBN, inventories);
+            if(inventory==null){
+                System.out.println("Book not found");
+                return;
+            }
+            System.out.println(inventory.getBook());
+            System.out.println("Book Quantity= "+ inventory.getQuantity());
         }
         else {
             System.out.println("Invalid input! Choose 'Name' or 'ISBN'.");
@@ -81,46 +90,59 @@ public class Main {
     }
 
     // Method for adding a book to the cart, with a loop to allow adding multiple books
-    public static void UserOptionTwo(Book[] book, Scanner scanner) {
-        boolean AddMore = true;
-        while (AddMore) {
-            System.out.println("Enter the ISBN of the Book to add it to the cart...");
-            String BookISBN = scanner.nextLine();
+    public static void UserOptionTwo(Scanner scanner, Inventory[] inventories) {
 
-            for (Book b : book) {
-                if (b.getISBN().equals(BookISBN) && b.getQuantity() > 0) {
-                    Cart.addBookToCart(b);  // Book quantity should decrease and check q > 0.
-                    System.out.println("Book added to cart.");
-                    break;
-                }
-            }
+        System.out.println("Enter the ISBN of the Book to add it to the cart...");
+        String BookISBN = scanner.nextLine();
 
-            System.out.println("Do you want to add more books? (y/n)");
-            String AnswerAddMore = scanner.nextLine();
-            if (AnswerAddMore.equals("n")) {
-                AddMore = false;
-            }
+        // Find the book by ISBN
+        Inventory inventory = Inventory.SearchBookByISBN(BookISBN,inventories);
+        if(inventory==null){
+            System.out.println("Book not found");
+            return;
         }
-        Cart.displayCart();
+        System.out.println(inventory);
+
+        // Add book to the Cart
+        Cart cart = Cart.getInstance();
+        cart.addBookToCart(inventory.getBook());
+
+        System.out.println("Book Added to the Cart!");
+        System.out.println(cart);
+
+        // Recursion
+        System.out.println("Do you want to add more books? (y/n)");
+        String AnswerAddMore = scanner.nextLine();
+        if (AnswerAddMore.equals("y")) {
+            UserOptionTwo(scanner, inventories);
+        }
     }
 
-    public static void UserOptionThree(Book[] book, Scanner scanner, boolean DoneOp) {
+    //Todo get the cart books and inventory books and reduce the amount 
+    public static void UserOptionThree(Scanner scanner,Inventory[] inventories) {
         System.out.println("Are you sure you want to Checkout? (y/n)");
         String UserCheckout = scanner.nextLine();
 
         if (UserCheckout.equals("y")) {
+
             if (Cart.getSize() > 0) {
-                if (Cart.totalPrice() > 0) {
-                    Cart.displayCart();
-                    System.out.println("Your Cart has been checked out!");
-                    Cart.clearCart();
-                } else {
-                    System.out.println("Your Cart is empty!");
+                System.out.println("Total Price= " + Cart.totalPrice());
+                Cart.displayCart();
+
+                // Access books in the cart, then reduce the corresponding quantity in inventory
+                Inventory.ReduceQuantity(Cart.getBook(), inventories);
+
+                //For loop to print the inventory quantities -> For check
+                for (int i = 0; i < 5; i++) {
+                    System.out.println(inventories[i]);
                 }
+
+                //Clear Cart
+                Cart.clearCart();
+                System.out.println("Your Cart has been checked out!");
             } else {
                 System.out.println("Your Cart is empty!");
             }
-            DoneOp = true;
+        }
         }
     }
-}

@@ -1,69 +1,72 @@
-import java.util.ArrayList;
-import java.util.List;
-
 public class Inventory {
-    private static ArrayList<Book> bookList = new ArrayList<>();
+    private static Book book;
+    private static int quantity;
 
-    public Inventory(){
-        bookList = new ArrayList<>();
+    public Inventory(Book book, int quantity) {
+        this.book = book;
+        this.quantity = quantity;
     }
 
-    public static void addBook(Book book){
-        bookList.add(book);
+    public static Book getBook() {
+        return book;
     }
 
-    public static void removeBook(Book book){
-        bookList.remove(book);
+    public static int getQuantity() {
+        return quantity;
+
     }
 
-    public static void ShowInventoryList(){
-        for(Book book : bookList) {
-            System.out.println("Book name: " + book.getName()
-                    + " - Author: " + book.getAuthor()
-                    + " - Price: " + book.getPrice()
-                    + " - Quantity: " + book.getQuantity()
-                    + " - ISBN: " + book.getISBN() + ".");
+    public static void setQuantity(int quantity) {
+        Inventory.quantity = quantity;
+    }
+
+    public static void StoreBooksInInventory(Book[] books, int[] quantities, Inventory[] inventories){
+        for (int i = 0; i < books.length; i++) {
+            inventories[i] = new Inventory(books[i], quantities[i]);
         }
     }
 
-    public static void SearchBookByName(String NAME){
-        for(Book book : bookList){
-            if(book.getName().equals(NAME)){
-                System.out.println("Book name: " + book.getName()
-                        + " - Author: " + book.getAuthor()
-                        + " - Price: " + book.getPrice()
-                        + " - Quantity: " + book.getQuantity()
-                        + " - ISBN: " + book.getISBN() + ".");
+    public static void DisplayInventory(Inventory[] inventories){
+        for (Inventory inventory : inventories) {
+            System.out.println(inventory);
+        }
+    }
+
+    public static void ReduceQuantity(Book book, Inventory[] inventories) {
+        for (Book cartBook : Cart.getBooksList()) {
+            for (Inventory inventoryBook : inventories) {
+                assert Cart.getBook() != null;
+                if (Inventory.getBook().getISBN().equals(Cart.getBook().getISBN())) {
+                    Inventory.setQuantity(Inventory.getQuantity()-1); //Todo for specific book not all books
+                    break; // Exit the inner loop once the match is found and quantity is reduced
+                }
             }
         }
     }
 
-    public static void SearchBookByISBN(String ISBN){
-        for(Book book : bookList){
-            if(book.getISBN().equals(ISBN)){
-                System.out.println("Book name: " + book.getName()
-                        + " - Author: " + book.getAuthor()
-                        + " - Price: " + book.getPrice()
-                        + " - Quantity: " + book.getQuantity()
-                        + " - ISBN: " + book.getISBN() + ".");
+    public static Inventory SearchBookByName(String NAME, Inventory[] inventories){
+        for(Inventory inventory : inventories){
+            if(getBook().getName().equals(NAME)){
+                return inventory;
             }
         }
+        return null;
     }
 
-    //Note: Remove from one book not all
-    public static void AddBookQuantity(String BookISBN){
-        for(Book book : bookList){
-            if(book.getISBN().equals(BookISBN)) {
-                book.setQuantity(book.getQuantity() + 1);
+    public static Inventory SearchBookByISBN(String ISBN, Inventory[] inventories){
+        for(Inventory inventory : inventories){
+            if(getBook().getISBN().equals(ISBN)) {
+                return inventory;
             }
         }
+        return null;
     }
 
-    public static void ReduceBookQuantity(String BookISBN){
-        for(Book book : bookList){
-            if(book.getISBN().equals(BookISBN)){
-                book.setQuantity(book.getQuantity() - 1);
-            }
-        }
+    @Override
+    public String toString() {
+        return "Inventory{" +
+                "book=" + book +
+                ", quantity=" + quantity +
+                '}';
     }
 }
